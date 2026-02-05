@@ -65,6 +65,52 @@ const { description } = await api.generateDescription(listingId);
 
 ---
 
+### DUPLICATION IS DIE HÖCHSTE VERRAT (The Highest Treason)
+
+**No frontend development proceeds without thorough component structure planning.**
+
+Before writing ANY new component, you MUST answer:
+1. **Does this already exist?** Search the codebase. Search hard.
+2. **Should this be a component at all?** Or is it just inline markup?
+3. **Can an existing component be extended?** Props, slots, variants?
+4. **Is this a pattern we want to establish?** Will it be reused?
+
+**Before ANY refactoring:**
+- Will this introduce duplication? If yes, STOP.
+- Am I creating a "similar but different" version? If yes, STOP.
+- Should I modify the original instead? Usually yes.
+
+**The Component Checklist (MANDATORY before creating):**
+
+```
+[ ] Searched codebase for similar components
+[ ] Checked component library (shadcn, etc.) for existing solution
+[ ] Verified no other component does 80%+ of what I need
+[ ] Confirmed this will be reused (not a one-off)
+[ ] Identified where this fits in the component hierarchy
+```
+
+**Examples of DIE HÖCHSTE VERRAT:**
+```
+VERBOTEN: Creating UserCard when ProfileCard exists and could be extended
+VERBOTEN: Creating CustomButton when Button with variants exists
+VERBOTEN: Creating FormInput when Input + wrapper pattern exists
+VERBOTEN: Copy-pasting a component and "tweaking it a bit"
+VERBOTEN: "This is slightly different so I'll make a new one"
+```
+
+**Correct approach:**
+```
+GUT: Extend existing component with new prop/variant
+GUT: Use composition (slots) to customize behavior
+GUT: Refactor original to support both use cases
+GUT: Use the existing component even if not "perfect"
+```
+
+**The 80% Rule:** If an existing component does 80% of what you need, USE IT. Adapt your design to the component, not the other way around. Perfect is the enemy of done, and duplication is the enemy of maintainability.
+
+---
+
 ## Core Principles
 
 ### 1. Logic Lives Outside the UI

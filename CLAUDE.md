@@ -17,7 +17,16 @@
 
 Frontend is a thin integration layer. It calls endpoints and displays results. Business logic, calculations, validations, AI calls - all backend. Violation is **HOCHVERRAT**.
 
-### 2. THE CODE MUST BE SIMPLE
+### 2. DUPLICATION IS DIE HÖCHSTE VERRAT
+
+No component created without searching for existing solutions first. No refactoring that introduces duplication. If something does 80% of what you need, USE IT.
+
+Before creating ANY component:
+- Does this already exist?
+- Can an existing component be extended?
+- Is this truly reusable or a one-off?
+
+### 3. THE CODE MUST BE SIMPLE
 
 - Extract functionality to separate classes
 - Preserve simple structures and stateless flows
@@ -25,7 +34,7 @@ Frontend is a thin integration layer. It calls endpoints and displays results. B
 - Simple one-liners stay inline
 - Don't over-engineer
 
-### 3. TESTS PROVE FUNCTIONALITY, NOT EXISTENCE
+### 4. TESTS PROVE FUNCTIONALITY, NOT EXISTENCE
 
 Every test must answer:
 - If this passes, what is proven true?
@@ -33,7 +42,7 @@ Every test must answer:
 
 No theatre tests. No mocking things to prove they match mocks.
 
-### 4. NEVER SWALLOW ERRORS
+### 5. NEVER SWALLOW ERRORS
 
 All catch blocks must log and surface errors. No empty catches.
 
