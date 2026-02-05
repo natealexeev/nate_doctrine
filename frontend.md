@@ -159,11 +159,44 @@ Once data patterns become clear, restructure without hesitation. Don't get attac
 
 A simple reduce, basic filter, or `a/b*100` doesn't need a function. Only extract when logic is complex (nested loops, multi-step calculations, reusable algorithms).
 
-### 6. No Direct Tailwind Classes
+### 6. Design System Variables Only
+
+**All styling MUST use CSS variables from the design system.**
+
+No arbitrary values. No magic numbers. No hardcoded colors. Everything comes from the design system.
+
+```css
+/* VERBOTEN - arbitrary values */
+.card {
+  padding: 13px;
+  color: #3a7bc8;
+  border-radius: 6px;
+  gap: 18px;
+}
+
+/* GUT - design system variables */
+.card {
+  padding: var(--spacing-md);
+  color: var(--color-primary);
+  border-radius: var(--radius-md);
+  gap: var(--spacing-sm);
+}
+```
 
 **Tailwind is internal plumbing for component libraries only.**
 
 Never use Tailwind utility classes directly in components (no `class="flex items-center p-4"`). Use component library components or CSS variables. Tailwind exists solely to power component library internals.
+
+**Exception process:** If a custom arbitrary value is SPECIFICALLY REQUESTED by Nate, it must be documented:
+
+```css
+/* NATE-APPROVED: Custom spacing for legacy integration - 2026-02-05 */
+.legacy-widget {
+  margin-top: 13px;
+}
+```
+
+No comment = no exception. If you see an arbitrary value without a `NATE-APPROVED` comment, it's a bug to be fixed.
 
 ### 7. Never Swallow Errors
 
