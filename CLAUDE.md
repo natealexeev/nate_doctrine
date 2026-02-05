@@ -11,6 +11,13 @@
 | backend.md | *(coming soon)* |
 | refactoring.md | *(coming soon)* |
 
+## Procedures
+
+| Procedure | Purpose |
+|-----------|---------|
+| [procedures/browser-testing.md](procedures/browser-testing.md) | Setting up browser testing agents with Chrome DevTools Protocol |
+| [procedures/parity-testing.md](procedures/parity-testing.md) | Visual comparison between implementations using ImageMagick |
+
 ## The Supreme Laws
 
 ### 1. ALL REAL LOGIC BELONGS IN THE BACKEND
