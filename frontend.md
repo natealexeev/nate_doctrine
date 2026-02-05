@@ -84,24 +84,13 @@ GOOD: Component -> calls service -> renders result
 
 No unnecessary complexity. Pure functions over stateful spaghetti. If you can't explain the data flow in one sentence, refactor until you can.
 
-### 3. Alternative Access Pipelines
-
-**Everything must be accessible via multiple paths.**
-
-- UI (user clicks)
-- Direct API (curl, scripts)
-- AI agents (automation)
-- Tests (verification)
-
-This is critical for iterative AI development. If something only works through the UI, you've created a bottleneck.
-
-### 4. UI is Disposable
+### 3. UI is Disposable
 
 **Components exist to serve a purpose.**
 
 Once data patterns become clear, restructure without hesitation. Don't get attached to markup. The component you wrote yesterday might be wrong today. Delete it.
 
-### 5. Tests Are Contracts, Not Theatre
+### 4. Tests Are Contracts, Not Theatre
 
 **Tests prove functionality.**
 
@@ -120,7 +109,7 @@ If a test exists and passes, the underlying functionality MUST work. No decorati
 
 **If you can't articulate what the test proves, don't write it.**
 
-### 6. Components Are Dumb Renderers
+### 5. Components Are Dumb Renderers
 
 **Strict separation of concerns.**
 
@@ -137,19 +126,19 @@ If a test exists and passes, the underlying functionality MUST work. No decorati
 **Business state** (lives in store):
 - `users`, `loading`, `error`, `pagination`
 
-### 7. Simple One-Liners Stay Inline
+### 6. Simple One-Liners Stay Inline
 
 **Don't extract trivial code.**
 
 A simple reduce, basic filter, or `a/b*100` doesn't need a function. Only extract when logic is complex (nested loops, multi-step calculations, reusable algorithms).
 
-### 8. No Direct Tailwind Classes
+### 7. No Direct Tailwind Classes
 
 **Tailwind is internal plumbing for component libraries only.**
 
 Never use Tailwind utility classes directly in components (no `class="flex items-center p-4"`). Use component library components or CSS variables. Tailwind exists solely to power component library internals.
 
-### 9. Never Swallow Errors
+### 8. Never Swallow Errors
 
 **All catch blocks MUST:**
 - Log the error to console: `console.error('Context:', e)`
@@ -158,7 +147,7 @@ Never use Tailwind utility classes directly in components (no `class="flex items
 
 The error message shown to user can be generic, but the console must have the real error.
 
-### 10. Loading States Must Preserve Layout
+### 9. Loading States Must Preserve Layout
 
 **Loading skeletons must be 1:1 with the real component:**
 - Same container elements, same grid/flex structure, same spacing

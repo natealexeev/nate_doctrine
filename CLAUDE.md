@@ -33,15 +33,7 @@ Every test must answer:
 
 No theatre tests. No mocking things to prove they match mocks.
 
-### 4. ALTERNATIVE ACCESS PIPELINES
-
-Everything accessible via:
-- UI (user clicks)
-- Direct API (curl, scripts)
-- AI agents (automation)
-- Tests (verification)
-
-### 5. NEVER SWALLOW ERRORS
+### 4. NEVER SWALLOW ERRORS
 
 All catch blocks must log and surface errors. No empty catches.
 
