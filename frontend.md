@@ -159,11 +159,21 @@ Once data patterns become clear, restructure without hesitation. Don't get attac
 
 A simple reduce, basic filter, or `a/b*100` doesn't need a function. Only extract when logic is complex (nested loops, multi-step calculations, reusable algorithms).
 
-### 6. Design System Variables Only
+### 6. Design System Variables Only — DEDUPLICATED AND STANDARDIZED
 
-**All styling MUST use CSS variables from the design system.**
+**All styling MUST use CSS variables from the design system. No exceptions.**
 
-No arbitrary values. No magic numbers. No hardcoded colors. Everything comes from the design system.
+This is about more than consistency—it's about **single source of truth**. Every value in your CSS must trace back to a named variable in the design system.
+
+**THE FOUR LAWS OF CSS VARIABLES:**
+
+1. **DEDUPLICATED** — One variable per semantic concept. Not `--blue-500` AND `--primary-blue` AND `--button-bg`. ONE variable: `--color-primary`.
+
+2. **STANDARDIZED** — Consistent naming conventions across the entire codebase. If spacing uses `--spacing-sm/md/lg`, you don't suddenly introduce `--gap-small`.
+
+3. **CENTRALIZED** — All variables defined in ONE place. Not scattered across component files. Not duplicated in different stylesheets.
+
+4. **THEME-AWARE** — All color variables MUST support light and dark themes. Theme switching must be instantaneous with zero component changes.
 
 ```css
 /* VERBOTEN - arbitrary values */
@@ -174,7 +184,14 @@ No arbitrary values. No magic numbers. No hardcoded colors. Everything comes fro
   gap: 18px;
 }
 
-/* GUT - design system variables */
+/* VERBOTEN - duplicate/inconsistent variables */
+.card {
+  padding: var(--card-padding);      /* Why does card have its own padding? */
+  color: var(--blue-primary);        /* Inconsistent with --color-primary */
+  border-radius: var(--border-rad);  /* Inconsistent with --radius-md */
+}
+
+/* GUT - standardized design system variables */
 .card {
   padding: var(--spacing-md);
   color: var(--color-primary);
@@ -182,6 +199,89 @@ No arbitrary values. No magic numbers. No hardcoded colors. Everything comes fro
   gap: var(--spacing-sm);
 }
 ```
+
+**Variable Audit Checklist:**
+
+Before adding ANY CSS variable, answer:
+- [ ] Does this variable already exist under a different name? → Use existing
+- [ ] Does this follow the established naming pattern? → `--category-variant`
+- [ ] Is this defined in the central design system file? → If not, add it there
+- [ ] Could this be expressed with existing variables? → Combine them
+- [ ] If it's a color, does it have both light AND dark theme values? → Required
+
+**VERBOTEN patterns:**
+```css
+--card-padding: 16px;        /* Use --spacing-md instead */
+--header-blue: #3a7bc8;      /* Use --color-primary instead */
+--small-gap: 8px;            /* Use --spacing-sm instead */
+--btn-radius: 4px;           /* Use --radius-sm instead */
+```
+
+**If you create a new variable, you must justify why existing variables don't work.**
+
+---
+
+**THEME ARCHITECTURE:**
+
+The design system MUST support light and dark themes with instant switching. Structure:
+
+```css
+/* Base palette - raw color values (NEVER use directly in components) */
+:root {
+  --palette-gray-50: #f9fafb;
+  --palette-gray-900: #111827;
+  --palette-blue-500: #3b82f6;
+  /* ... */
+}
+
+/* Semantic tokens - THESE are what components use */
+:root, [data-theme="light"] {
+  --color-bg: var(--palette-gray-50);
+  --color-bg-elevated: white;
+  --color-text: var(--palette-gray-900);
+  --color-text-muted: var(--palette-gray-500);
+  --color-border: var(--palette-gray-200);
+  --color-primary: var(--palette-blue-500);
+}
+
+[data-theme="dark"] {
+  --color-bg: var(--palette-gray-900);
+  --color-bg-elevated: var(--palette-gray-800);
+  --color-text: var(--palette-gray-50);
+  --color-text-muted: var(--palette-gray-400);
+  --color-border: var(--palette-gray-700);
+  --color-primary: var(--palette-blue-400);
+}
+```
+
+**Theme switching is ONE LINE:**
+```javascript
+document.documentElement.dataset.theme = 'dark';  // or 'light'
+```
+
+**VERBOTEN theme patterns:**
+```css
+/* VERBOTEN - hardcoded colors */
+.card { background: white; }
+.card.dark { background: #1f2937; }
+
+/* VERBOTEN - conditional classes for theming */
+<div :class="{ 'bg-white': !dark, 'bg-gray-800': dark }">
+
+/* VERBOTEN - JavaScript color switching */
+style.backgroundColor = isDark ? '#1f2937' : 'white';
+
+/* GUT - semantic variable, theme handled by CSS */
+.card { background: var(--color-bg-elevated); }
+```
+
+**Rules:**
+- Components NEVER know what theme is active
+- Components ONLY use semantic variables (`--color-bg`, not `--palette-gray-900`)
+- Theme switch = change `data-theme` attribute = instant update, zero re-renders
+- Palette variables are internal to the design system file only
+
+---
 
 **Tailwind is internal plumbing for component libraries only.**
 
