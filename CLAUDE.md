@@ -6,9 +6,9 @@
 
 | Document | Scope |
 |----------|-------|
-| [frontend.md](frontend.md) | Frontend architecture, components, stores, testing |
+| [frontend.md](frontend.md) | Frontend architecture, components, stores, schemas |
+| [testing.md](testing.md) | Testing philosophy, what to test, theatre vs proof |
 | backend.md | *(coming soon)* |
-| testing.md | *(coming soon)* |
 | refactoring.md | *(coming soon)* |
 
 ## The Supreme Laws

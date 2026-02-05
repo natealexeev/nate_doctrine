@@ -90,26 +90,7 @@ No unnecessary complexity. Pure functions over stateful spaghetti. If you can't 
 
 Once data patterns become clear, restructure without hesitation. Don't get attached to markup. The component you wrote yesterday might be wrong today. Delete it.
 
-### 4. Tests Are Contracts, Not Theatre
-
-**Tests prove functionality.**
-
-If a test exists and passes, the underlying functionality MUST work. No decorative tests.
-
-**Test this:**
-- Pure logic functions (input -> output, edge cases matter)
-- Calculations, validations, transformations, business rules
-- Fixtures validate against schemas at load time
-
-**Do NOT test this (theatre):**
-- API clients with mocked responses (proves code matches mock, not reality)
-- Browser API wrappers (requires mocking browser)
-- Config/dictionary lookups (test would duplicate the config)
-- Trivial stdlib wrappers
-
-**If you can't articulate what the test proves, don't write it.**
-
-### 5. Components Are Dumb Renderers
+### 4. Components Are Dumb Renderers
 
 **Strict separation of concerns.**
 
@@ -126,19 +107,19 @@ If a test exists and passes, the underlying functionality MUST work. No decorati
 **Business state** (lives in store):
 - `users`, `loading`, `error`, `pagination`
 
-### 6. Simple One-Liners Stay Inline
+### 5. Simple One-Liners Stay Inline
 
 **Don't extract trivial code.**
 
 A simple reduce, basic filter, or `a/b*100` doesn't need a function. Only extract when logic is complex (nested loops, multi-step calculations, reusable algorithms).
 
-### 7. No Direct Tailwind Classes
+### 6. No Direct Tailwind Classes
 
 **Tailwind is internal plumbing for component libraries only.**
 
 Never use Tailwind utility classes directly in components (no `class="flex items-center p-4"`). Use component library components or CSS variables. Tailwind exists solely to power component library internals.
 
-### 8. Never Swallow Errors
+### 7. Never Swallow Errors
 
 **All catch blocks MUST:**
 - Log the error to console: `console.error('Context:', e)`
@@ -147,7 +128,7 @@ Never use Tailwind utility classes directly in components (no `class="flex items
 
 The error message shown to user can be generic, but the console must have the real error.
 
-### 9. Loading States Must Preserve Layout
+### 8. Loading States Must Preserve Layout
 
 **Loading skeletons must be 1:1 with the real component:**
 - Same container elements, same grid/flex structure, same spacing
@@ -256,60 +237,6 @@ export const usersApi = {
 
 ---
 
-## Testing Doctrine
-
-### The Test Question
-
-Before writing a test, ask:
-- **If this passes, what is proven true?**
-- **If this fails, what broke?**
-
-If you can't answer clearly, you're writing theatre.
-
-### Theatre vs Proof
-
-**Theatre (don't do this):**
-```typescript
-// We defined the mock, we defined the code
-// This proves... they match? So what?
-mock.onGet('/users').reply(200, mockUsers);
-const result = await usersApi.list();
-expect(result.data).toHaveLength(2);
-```
-
-**Proof (do this):**
-```typescript
-// Real logic, real edge cases
-describe('detectAnomalies', () => {
-  it('returns empty for insufficient data', () => {
-    expect(detectAnomalies([1, 2, 3])).toEqual([]);
-  });
-
-  it('detects statistical outliers', () => {
-    const values = [10, 11, 9, 10, 100]; // 100 is outlier
-    expect(detectAnomalies(values)).toContain(4);
-  });
-});
-```
-
-### Test Safety
-
-```typescript
-// tests/setup.ts
-export const mock = new MockAdapter(apiClient, {
-  onNoMatch: 'throwException'  // Fail if unmocked endpoint called
-});
-```
-
-**Rules:**
-1. NEVER create your own axios instance - use the shared client
-2. NEVER use native fetch() - axios only
-3. Watch for third-party deps that make HTTP calls
-
-Violations = tests hitting real APIs = data corruption.
-
----
-
 ## File Structure
 
 ```
@@ -342,18 +269,12 @@ tests/
 
 **Is my logic in the right place?**
 - Can I use this without Vue/React? -> If no, move to service/operation
-- Can I test this without mocking the universe? -> If no, simplify
 - Is this business logic? -> If yes, it belongs in the backend (HOCHVERRAT!)
 
 **Is my component doing too much?**
 - Does it make API calls? -> Move to store
 - Does it transform data? -> Move to operation
 - Does it hold business state? -> Move to store
-
-**Is my test useful?**
-- Does it test real logic or mock choreography?
-- If the test passes, am I confident the feature works?
-- If the test fails, will I know exactly what broke?
 
 ---
 
@@ -366,7 +287,6 @@ Components  ->  Render props, emit events, ephemeral state only
 Stores      ->  Call backend APIs, manage loading/error states
 Operations  ->  Pure display formatting ONLY (when absolutely needed)
 Schemas     ->  Single source of truth for types AND validation
-Tests       ->  Prove functionality, not existence
 ```
 
 **The goal:** Frontend is a thin integration layer. Backend owns all logic. The UI calls endpoints and displays results - nothing more.
