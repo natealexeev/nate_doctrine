@@ -7,6 +7,7 @@
 | Document | Scope |
 |----------|-------|
 | [frontend.md](frontend.md) | Frontend architecture, components, stores, schemas |
+| [ux-laws.md](ux-laws.md) | UX heuristics — Jakob's Law, Fitts's Law, Doherty Threshold, etc. |
 | [testing.md](testing.md) | Testing philosophy, what to test, theatre vs proof |
 | backend.md | *(coming soon)* |
 | refactoring.md | *(coming soon)* |
@@ -17,6 +18,7 @@
 |-----------|---------|
 | [procedures/browser-testing.md](procedures/browser-testing.md) | Setting up browser testing agents with Chrome DevTools Protocol |
 | [procedures/parity-testing.md](procedures/parity-testing.md) | Visual comparison between implementations using ImageMagick |
+| `infinite-review-loop` skill | Recursive review-fix cycle until zero issues remain (invoke via Skill tool) |
 
 ## The Supreme Laws
 
@@ -68,6 +70,22 @@ No theatre tests. No mocking things to prove they match mocks.
 ### 5. NEVER SWALLOW ERRORS
 
 All catch blocks must log and surface errors. No empty catches.
+
+### 6. UX LAWS ARE NON-NEGOTIABLE FOR ALL FRONTEND WORK
+
+**Every frontend implementation MUST adhere to `ux-laws.md` with EXTREME PRECISION.** This is not a suggestion — it is doctrine.
+
+Before implementing ANY UI component, page, or user flow, you MUST cross-check against all applicable UX laws:
+- **Jakob's Law** — Use standard patterns. Don't reinvent navigation.
+- **Doherty Threshold** — Feedback within 400ms or use skeleton loaders.
+- **Hick's Law** — Minimize choices. Break complex flows into steps.
+- **Von Restorff Effect** — Primary CTAs must visually stand out.
+- **Fitts's Law** — Interactive targets must be large enough and well-placed.
+- **Peak-End Rule** — Success states get delight elements.
+- **Tesler's Law** — Shift complexity to the system, not the user.
+- **Miller's Law** — Chunk content into groups of 5-9 items.
+
+**Read `nate_doctrine/ux-laws.md` before every frontend task. No exceptions.**
 
 ---
 
