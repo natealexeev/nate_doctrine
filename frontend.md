@@ -221,6 +221,62 @@ Before adding ANY CSS variable, answer:
 
 ---
 
+**LAYOUT: FLEX + GAP, NEVER MARGINS**
+
+**Margins are forbidden for layout spacing.** Use flex containers with gap instead.
+
+Why margins are evil:
+- Margins collapse unpredictably
+- Margins create coupling between components (child knows about parent spacing)
+- Margins make components non-portable (move component = broken spacing)
+- Margins require mental overhead (margin-top vs margin-bottom, which component owns it?)
+
+**The rule:** Parent containers own spacing via `gap`. Children never add margins for spacing.
+
+```css
+/* VERBOTEN - margins for layout */
+.page-header {
+  margin-bottom: 1rem;
+}
+
+.card {
+  margin-top: 0.5rem;
+}
+
+.card + .card {
+  margin-top: 1rem;  /* Lobotomized owl? More like lobotomized developer. */
+}
+
+/* GUT - parent owns spacing via gap */
+.page-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Children have zero margin - they don't know about spacing */
+.page-header { /* no margin */ }
+.card { /* no margin */ }
+```
+
+**Gap variables must come from the design system:**
+```css
+gap: var(--spacing-xs);   /* 0.25rem */
+gap: var(--spacing-sm);   /* 0.5rem */
+gap: var(--spacing-md);   /* 1rem */
+gap: var(--spacing-lg);   /* 1.5rem */
+gap: var(--spacing-xl);   /* 2rem */
+```
+
+**The only acceptable margin use cases:**
+- Negative margins for specific visual effects (overlapping elements)
+- `margin: 0 auto` for centering
+- Overriding third-party component styles (with `NATE-APPROVED` comment)
+
+Everything else? Flex + gap.
+
+---
+
 **THEME ARCHITECTURE:**
 
 The design system MUST support light and dark themes with instant switching. Structure:

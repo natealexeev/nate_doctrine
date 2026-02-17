@@ -7,5 +7,13 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1785 | 2:28 PM | 🟣 | Added procedures directory with browser testing and parity testing documentation | ~485 |
+| #1784 | " | 🟣 | Created parity testing procedure for visual regression detection | ~758 |
 | #1782 | 2:27 PM | 🟣 | Created browser testing procedure documentation for multi-agent automated visual testing | ~827 |
+
+### Feb 8, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #1930 | 11:53 AM | 🔵 | Browser Testing Doctrine Requirements Documented | ~443 |
 </claude-mem-context>

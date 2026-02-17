@@ -2,6 +2,10 @@
 
 > Universal principles for all software projects.
 
+## ⚠️ ALWAYS KEEP THIS REPO SYNCED
+
+**Every edit to this repo MUST be immediately committed and pushed.** No exceptions. Doctrine changes that exist only locally are invisible to other sessions and agents. If you edit a file, you commit and push. Every time.
+
 ## Documents
 
 | Document | Scope |
@@ -9,6 +13,7 @@
 | [frontend.md](frontend.md) | Frontend architecture, components, stores, schemas |
 | [ux-laws.md](ux-laws.md) | UX heuristics — Jakob's Law, Fitts's Law, Doherty Threshold, etc. |
 | [testing.md](testing.md) | Testing philosophy, what to test, theatre vs proof |
+| [lessons.md](lessons.md) | **READ FIRST** — Hard-won rules from repeated mistakes. Prevention rules for every recurring error. |
 | backend.md | *(coming soon)* |
 | refactoring.md | *(coming soon)* |
 
