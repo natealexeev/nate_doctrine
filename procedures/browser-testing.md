@@ -21,7 +21,7 @@ This isolation allows parallel testing without interference.
 
 - Chrome/Chromium installed
 - Project supports running on custom ports
-- MCP browser tools configured (e.g., `mcp__chrome-{N}__*`)
+- `agent-browser` CLI available (`npx agent-browser` or installed globally)
 
 ### Single Agent Setup
 
@@ -137,21 +137,34 @@ done
 
 ---
 
-## MCP Browser Tools
+## Browser Interaction - agent-browser CLI
 
-Use project-specific MCP tools (e.g., `mcp__chrome-1__*`, `mcp__chrome-2__*`).
+Use `agent-browser` CLI (via Bash) for all browser automation. No MCP servers needed.
 
-| Tool | Purpose |
-|------|---------|
-| `list_pages` | List open tabs |
-| `select_page` | Switch to a specific tab |
-| `new_page` | Open URL in new tab |
-| `navigate_page` | Navigate current tab to URL |
-| `take_snapshot` | Get DOM/accessibility tree |
-| `take_screenshot` | Capture visual screenshot |
-| `click` | Click element |
-| `fill` | Enter text in input |
-| `wait_for` | Wait for element/condition |
+```bash
+# Core workflow
+agent-browser --session agent-N open <url>       # Navigate
+agent-browser --session agent-N snapshot -i       # Get element refs (@e1, @e2...)
+agent-browser --session agent-N click @e1         # Click
+agent-browser --session agent-N fill @e2 "text"   # Fill input
+agent-browser --session agent-N screenshot        # Capture
+agent-browser --session agent-N wait --load networkidle  # Wait for load
+```
+
+| Command | Purpose |
+|---------|---------|
+| `open <url>` | Navigate to URL |
+| `snapshot -i` | Get interactive element refs |
+| `click @eN` | Click element |
+| `fill @eN "text"` | Enter text in input |
+| `select @eN "opt"` | Select dropdown option |
+| `get text @eN` | Extract text content |
+| `get url` | Get current URL |
+| `screenshot` | Capture screenshot |
+| `wait --load networkidle` | Wait for network idle |
+| `close` | Close browser session |
+
+**Refs invalidate on navigation/DOM changes — always re-snapshot after.**
 
 ---
 
@@ -184,9 +197,9 @@ done
 - Check if port is already in use: `lsof -i :9223`
 - Remove stale user data: `rm -rf /tmp/chrome-agent-*`
 
-### MCP tools can't connect
+### agent-browser can't connect
 - Verify Chrome is running: `curl http://127.0.0.1:9223/json/version`
-- Check MCP server configuration matches port numbers
+- Check that SSH tunnels are up (Chrome debug ports tunneled from Lappy)
 
 ### Screenshots are inconsistent
 - Disable HMR: `NO_HMR=true`

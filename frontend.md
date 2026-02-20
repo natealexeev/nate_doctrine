@@ -354,7 +354,54 @@ Never use Tailwind utility classes directly in components (no `class="flex items
 
 No comment = no exception. If you see an arbitrary value without a `NATE-APPROVED` comment, it's a bug to be fixed.
 
-### 7. Never Swallow Errors
+### 7. Spacing Is Gap-Driven — No Margin Hacks
+
+**Parent owns spacing. Children own internal padding. Nothing else.**
+
+Spacing between sibling elements MUST be controlled by the parent container's `gap` property. Children never use `margin` to create space between themselves — that's the parent's job.
+
+```css
+/* VERBOTEN — margin on child to fake spacing */
+.stats-panel {
+  margin: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-sm);
+}
+
+/* VERBOTEN — padding-top on a child to separate from sibling above */
+.actions-bar {
+  padding-top: var(--spacing-sm);
+}
+
+/* GUT — parent flex/grid with gap, children have zero external spacing */
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+}
+
+.stats-panel {
+  /* internal padding only, no margin */
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+  border-radius: var(--radius-md);
+}
+
+.actions-bar {
+  /* border-top for visual separation, gap handles the spacing */
+  border-top: 1px solid var(--color-border-subtle);
+}
+```
+
+**The pattern:**
+1. Outer container (card, section, page) sets `padding` for inset
+2. Flex/grid parent sets `gap` for spacing between children
+3. Children set their own `padding` for internal content spacing
+4. Children NEVER set `margin` — the parent gap handles it
+
+**Why:** Margins collapse unpredictably, create invisible spacing that's hard to debug, and break when children are conditionally rendered (v-if removes an element but its margin logic doesn't adjust). Gap is explicit, predictable, and adapts automatically when children appear/disappear.
+
+### 8. Never Swallow Errors
 
 **All catch blocks MUST:**
 - Log the error to console: `console.error('Context:', e)`
@@ -363,7 +410,7 @@ No comment = no exception. If you see an arbitrary value without a `NATE-APPROVE
 
 The error message shown to user can be generic, but the console must have the real error.
 
-### 8. Loading States Must Preserve Layout
+### 9. Loading States Must Preserve Layout
 
 **Loading skeletons must be 1:1 with the real component:**
 - Same container elements, same grid/flex structure, same spacing

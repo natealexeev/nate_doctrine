@@ -24,6 +24,8 @@
 | [procedures/browser-testing.md](procedures/browser-testing.md) | Setting up browser testing agents with Chrome DevTools Protocol |
 | [procedures/parity-testing.md](procedures/parity-testing.md) | Visual comparison between implementations using ImageMagick |
 | `infinite-review-loop` skill | Recursive review-fix cycle until zero issues remain (invoke via Skill tool) |
+| [procedures/mockup-procedure.md](procedures/mockup-procedure.md) | Component-based mockups that share design-system.css — no double work |
+| [procedures/integrated-mockup.md](procedures/integrated-mockup.md) | Prototype inside the real app — fake data, real components, zero re-integration |
 
 ## The Supreme Laws
 
