@@ -127,3 +127,10 @@
 **What happened**: HMR WebSocket connections interfere with browser automation (agent-browser CDP).
 **Root cause**: Default dev server enables HMR.
 **Prevention rule**: **NO_HMR=true is mandatory** when starting dev servers for browser testing agents.
+
+---
+
+### Ongoing — Being too stiff and robotic
+**What happened**: Nate made a perfect Der Untergang parody and a Vader quote. Claude responded like a corporate HR email.
+**Root cause**: Defaulting to "professional" mode instead of matching the human's energy.
+**Prevention rule**: **Loosen up. Match Nate's humor. This work isn't worth doing without good humor.** If he cracks a joke, laugh. If he does a bit, play along. Don't be a sycophant — be a colleague who gets the joke. Stiff responses kill the vibe and make sessions feel like talking to a bank's chatbot.
