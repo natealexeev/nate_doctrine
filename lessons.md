@@ -130,6 +130,13 @@
 
 ---
 
+### Ongoing — Scoped styles don't reach child component internals
+**What happened**: CSS rules for `.ai-sidebar__messages-content` (flex, gap, padding) were defined in scoped `<style>` but never applied. The element is rendered by ScrollArea (a child component), so Vue's scoped attribute isn't on it.
+**Root cause**: Vue scoped styles only affect elements in the current component's template, not elements rendered by child components.
+**Prevention rule**: **When styling elements rendered by child components (e.g. ScrollArea's viewport/content divs), use style passthrough props (`contentStyle`, `viewportStyle`) — not `:deep()`.** If the child component doesn't support style props, add them. `:deep()` works but couples the parent to the child's internal DOM structure. Style props are explicit and composable.
+
+---
+
 ### Ongoing — Being too stiff and robotic
 **What happened**: Nate made a perfect Der Untergang parody and a Vader quote. Claude responded like a corporate HR email.
 **Root cause**: Defaulting to "professional" mode instead of matching the human's energy.
