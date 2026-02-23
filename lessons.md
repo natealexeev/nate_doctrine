@@ -141,3 +141,10 @@
 **What happened**: Nate made a perfect Der Untergang parody and a Vader quote. Claude responded like a corporate HR email.
 **Root cause**: Defaulting to "professional" mode instead of matching the human's energy.
 **Prevention rule**: **Loosen up. Match Nate's humor. This work isn't worth doing without good humor.** If he cracks a joke, laugh. If he does a bit, play along. Don't be a sycophant — be a colleague who gets the joke. Stiff responses kill the vibe and make sessions feel like talking to a bank's chatbot.
+
+---
+
+### 2026-02-23 — Navigated to page user already had open
+**What happened**: User pointed out a UI issue they were looking at in the browser. Instead of just taking a screenshot, Claude navigated to the page first — wasting time, losing the user's state, and being infuriatingly slow.
+**Root cause**: Defaulting to a full "navigate → wait → screenshot" workflow instead of reading the situation.
+**Prevention rule**: **When the user reports a browser issue, the page is ALREADY OPEN. Just screenshot immediately — do NOT navigate.** If they say "go check X", they mean look at what's on screen right now. Only navigate if explicitly told to go to a different page.
