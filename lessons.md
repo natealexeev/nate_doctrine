@@ -82,9 +82,9 @@
 ---
 
 ### Ongoing — Editing main repo files while agent worktree is active
-**What happened**: Made changes in the main repo checkout instead of the worktree. Dev server serves from the worktree, so changes were invisible.
-**Root cause**: Not tracking which directory the dev server is serving.
-**Prevention rule**: **When an agent worktree is active, ALL edits go in the worktree copy.** The dev server serves from the worktree — changes to main repo won't be seen. Always verify you're editing the right path.
+**What happened**: Made changes in the main repo, then COPIED files to the worktree. Dev server serves from the worktree, so the main repo edits were invisible until copied — and copying is wrong.
+**Root cause**: Treating the main repo as the "real" codebase and the worktree as a deployment target.
+**Prevention rule**: **The worktree IS your working directory. Edit files there directly.** Never edit main repo files and copy them over. Never read main repo files when the worktree has its own copy. The moment an agent worktree is set up, ALL file paths for reads, edits, and writes must point to `/path/to/.worktrees/agent-N/`. If you catch yourself typing a path without `.worktrees/agent-N/` in it, STOP — you're in the wrong directory.
 
 ---
 
