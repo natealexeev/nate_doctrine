@@ -148,3 +148,10 @@
 **What happened**: User pointed out a UI issue they were looking at in the browser. Instead of just taking a screenshot, Claude navigated to the page first — wasting time, losing the user's state, and being infuriatingly slow.
 **Root cause**: Defaulting to a full "navigate → wait → screenshot" workflow instead of reading the situation.
 **Prevention rule**: **When the user reports a browser issue, the page is ALREADY OPEN. Just screenshot immediately — do NOT navigate.** If they say "go check X", they mean look at what's on screen right now. Only navigate if explicitly told to go to a different page.
+
+---
+
+### 2026-03-08 — Hours wasted on fancy animations that don't matter
+**What happened**: Spent an entire session wrestling with spring physics, AnimatePresence exit animations, card stack fanning, typing-to-stack transitions, focus/hover animation blocking. Multiple iterations, edge cases, key mismatches, sequential vs simultaneous fly-in/out. Hours burned on something no user will ever notice or care about.
+**Root cause**: Nate got obsessed with making animations "perfect" instead of shipping features that matter.
+**Prevention rule**: **When Nate starts obsessing over animations or cosmetic UI polish, CALL HIM OUT.** Say: "This is the animation rabbit hole again. Is this the best use of the next 3 hours?" Animations should be: (1) simple CSS transitions or a single library call, (2) done in under 30 minutes, (3) abandoned if they fight you. If an animation needs multiple iterations, custom key management, or debugging exit/enter lifecycle — it's not worth it. Ship the feature without it and move on.
