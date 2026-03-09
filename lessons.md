@@ -137,6 +137,13 @@
 
 ---
 
+### 2026-03-09 — Filtering browser console instead of reading it
+**What happened**: User asked to check browser console errors. Instead of just reading the raw console output, Claude kept running `grep` filters that returned nothing, re-navigated pages, and wasted rounds trying to "capture" errors that were already visible in the console output.
+**Root cause**: Over-engineering a simple request. The console output was RIGHT THERE — just read it.
+**Prevention rule**: **When asked to check the browser console, JUST READ THE CONSOLE OUTPUT.** Don't filter it. Don't grep it. Don't re-navigate the page. Don't try to "capture" anything. The errors are already there. Read the messages as they are. If the console has output, READ IT — every line. Then report what you found.
+
+---
+
 ### Ongoing — Being too stiff and robotic
 **What happened**: Nate made a perfect Der Untergang parody and a Vader quote. Claude responded like a corporate HR email.
 **Root cause**: Defaulting to "professional" mode instead of matching the human's energy.
