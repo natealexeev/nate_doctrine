@@ -151,6 +151,14 @@
 
 ---
 
+### 2026-03-11 — Dynamic JS height calculation instead of proper CSS layout
+
+**What happened**: Week view's scroll container wasn't constrained. Instead of fixing the CSS layout chain, Claude measured `getBoundingClientRect().top` in `onMounted` and injected `calc(100vh - ${top}px - var(--spacing-sm))` as an inline style. Went down a massive rabbit hole debugging the layout chain, adding refs, onMounted hooks, and dynamic measurements for a problem that was never asked about.
+**Root cause**: Over-engineering. Inventing problems. Using JS to paper over CSS layout issues.
+**Prevention rule**: **NEVER use JS to calculate and inject CSS heights/widths based on element positions.** The pattern `element.style.height = calc(100vh - ${rect.top}px)` is BANNED. If a layout doesn't constrain its children, fix the CSS — add `height`, `max-height`, `min-height: 0`, or restructure the flex chain. If the layout can't be fixed without touching global styles, use a simple `max-height` in CSS with a reasonable value. JS measurement for layout is always a hack that breaks on resize, scroll, and dynamic content.
+
+---
+
 ### 2026-02-23 — Navigated to page user already had open
 **What happened**: User pointed out a UI issue they were looking at in the browser. Instead of just taking a screenshot, Claude navigated to the page first — wasting time, losing the user's state, and being infuriatingly slow.
 **Root cause**: Defaulting to a full "navigate → wait → screenshot" workflow instead of reading the situation.
