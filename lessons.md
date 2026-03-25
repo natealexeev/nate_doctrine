@@ -177,3 +177,10 @@
 **What happened**: Integrated DocuSeal Community Edition for e-signatures. Built the full integration — backend service, router, frontend components, Docker setup. Then discovered ALL template creation APIs (PDF, HTML, DOCX) are Pro-only ($20/user/month). The `@docuseal/vue` embedded components are hollow wrappers that load closed-source CDN scripts. Open-source version serves "upgrade to pro" placeholders. Days of work rendered useless.
 **Root cause**: Took "open source" at face value without auditing what the free tier actually includes. The README and docs advertise features without clearly marking which require Pro.
 **Prevention rule**: **Before integrating ANY open-source tool, audit how it makes money.** There is ALWAYS a catch. Check: (1) Is the core functionality actually in the open-source code, or behind an API/license wall? (2) Are the advertised APIs available without a paid plan? (3) Do embedded components load external closed-source scripts? (4) What does the free tier ACTUALLY let you do vs what the docs imply? Run the free version and hit every API endpoint you plan to use BEFORE writing integration code. If the business model is "open-source but all the useful APIs are Pro-only," it's not open source — it's a demo.
+
+---
+
+### 2026-03-25 — Proposed client-side filtering instead of backend
+**What happened**: Built a saved listings page and when asked for filters, immediately proposed doing sort/filter in the frontend JavaScript. This violates the supreme law: ALL REAL LOGIC BELONGS IN THE BACKEND.
+**Root cause**: Laziness. "The dataset is small" is not an excuse. Filtering, sorting, and any data transformation is business logic. It goes in the backend. Always.
+**Prevention rule**: **NEVER do filtering, sorting, or data transformation on the client.** Not even for "small" datasets. Not even for "simple" sorts. The backend owns all data logic — the frontend calls an endpoint with parameters and displays results. If you need sort/filter on a page, add query parameters to the backend endpoint. No exceptions.
