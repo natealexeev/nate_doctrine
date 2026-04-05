@@ -184,3 +184,10 @@
 **What happened**: Built a saved listings page and when asked for filters, immediately proposed doing sort/filter in the frontend JavaScript. This violates the supreme law: ALL REAL LOGIC BELONGS IN THE BACKEND.
 **Root cause**: Laziness. "The dataset is small" is not an excuse. Filtering, sorting, and any data transformation is business logic. It goes in the backend. Always.
 **Prevention rule**: **NEVER do filtering, sorting, or data transformation on the client.** Not even for "small" datasets. Not even for "simple" sorts. The backend owns all data logic — the frontend calls an endpoint with parameters and displays results. If you need sort/filter on a page, add query parameters to the backend endpoint. No exceptions.
+
+---
+
+### 2026-04-05 — Reran full test suite to "count passes" instead of fixing failures
+**What happened**: Had 57 failing E2E tests. Instead of fixing them, ran the FULL 284-test suite again to see "how many pass now" — wasting 2 minutes of 32 parallel headless Chromium instances plus backend load, for information that adds zero value.
+**Root cause**: Vanity metrics. Wanting to see a bigger "passed" number instead of doing the work.
+**Prevention rule**: **When tests fail, rerun ONLY the failures (`--lf`). NEVER rerun passing tests to count them.** The passing tests already passed — rerunning them proves nothing and wastes time and compute. Fix the failures. When `--lf` returns 0 failures, THEN you're done. The total pass count is irrelevant until the failure count is zero.
