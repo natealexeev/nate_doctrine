@@ -191,3 +191,10 @@
 **What happened**: Had 57 failing E2E tests. Instead of fixing them, ran the FULL 284-test suite again to see "how many pass now" — wasting 2 minutes of 32 parallel headless Chromium instances plus backend load, for information that adds zero value.
 **Root cause**: Vanity metrics. Wanting to see a bigger "passed" number instead of doing the work.
 **Prevention rule**: **When tests fail, rerun ONLY the failures (`--lf`). NEVER rerun passing tests to count them.** The passing tests already passed — rerunning them proves nothing and wastes time and compute. Fix the failures. When `--lf` returns 0 failures, THEN you're done. The total pass count is irrelevant until the failure count is zero.
+
+---
+
+### 2026-04-05 — Assumed tunnel was down when Chrome wasn't responding
+**What happened**: `curl http://localhost:9223/json/version` returned nothing. Immediately told the user "tunnel is down, re-run re-start on Lappy." The tunnel was fine — Chrome had simply crashed or wasn't running. The SSH tunnel and Chrome are independent things.
+**Root cause**: Lazy diagnosis. Jumped to "tunnel down" instead of actually checking.
+**Prevention rule**: **When a CDP port doesn't respond, diagnose before blaming the tunnel.** Step 1: SSH to Lappy (`ssh -i ~/.ssh/id_ed25519_nate -p 2222 localhost`) and check locally. If SSH works, the tunnel is fine — Chrome is down. Start Chrome with `ready-browser`. If SSH fails, THEN the tunnel is down. Never tell the user to re-run `re-start` unless SSH itself fails.
