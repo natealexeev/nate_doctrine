@@ -137,6 +137,16 @@
 
 ---
 
+### 2026-04-07 — Schema documented but values never explored, missed critical ML features
+
+**What happened**: Built 14 versions of a churn prediction model over weeks. The data dictionary documented Matomo's `matomo_log_link_visit_action` table with `idaction_event_category` and `idaction_event_action` columns. Never queried what event values actually exist. Turns out Matomo was tracking `File - View` (streaming: 589K/month), `File - Download` (individual downloads: 706K/month), and `Promotional - visited_subscription` (subscription page visits: 13K/month) — none of which were used. A single `Events.getCategory` API call or `SELECT DISTINCT` would have revealed all of this on day one. Also missed Matomo goal conversions (pricing views, payment clicks) and per-session device type data. All documented in the data dictionary but never explored beyond the schema.
+
+**Root cause**: Read table schemas without checking what actual values populate them. Trusted existing extraction scripts as complete without verifying what they extract vs what's available.
+
+**Prevention rule**: **For every column in a data source, query the actual VALUES — not just the type.** Run `SELECT DISTINCT`, check distributions, count populations. A column called `idaction_event_category` is useless information until you know it contains streaming events, download events, and subscription page visits. **Schema tells you what CAN be stored. Value exploration tells you what IS stored.** Do this BEFORE any feature engineering, not after 14 model versions. This applies to every data source: DB columns, API endpoints, analytics platforms. If a column exists, ask: what's in it?
+
+---
+
 ### 2026-03-09 — Filtering browser console instead of reading it
 **What happened**: User asked to check browser console errors. Instead of just reading the raw console output, Claude kept running `grep` filters that returned nothing, re-navigated pages, and wasted rounds trying to "capture" errors that were already visible in the console output.
 **Root cause**: Over-engineering a simple request. The console output was RIGHT THERE — just read it.
@@ -198,3 +208,75 @@
 **What happened**: `curl http://localhost:9223/json/version` returned nothing. Immediately told the user "tunnel is down, re-run re-start on Lappy." The tunnel was fine — Chrome had simply crashed or wasn't running. The SSH tunnel and Chrome are independent things.
 **Root cause**: Lazy diagnosis. Jumped to "tunnel down" instead of actually checking.
 **Prevention rule**: **When a CDP port doesn't respond, diagnose before blaming the tunnel.** Step 1: SSH to Lappy (`ssh -i ~/.ssh/id_ed25519_nate -p 2222 localhost`) and check locally. If SSH works, the tunnel is fine — Chrome is down. Start Chrome with `ready-browser`. If SSH fails, THEN the tunnel is down. Never tell the user to re-run `re-start` unless SSH itself fails.
+
+---
+
+### 2026-04-05 — Mautic campaign launch: 7 fuckups in one session
+
+**What happened**: Attempted to send 10 churn retention emails via Mautic campaigns. Every step broke. Each user received their email twice. Multiple near-misses with sending to 60 users instead of 10.
+
+**Fuckup 1: Tried to push to production Mautic when told "test locally"**
+The user said "test locally" and Claude ran `live_test.py --max 100` without `--dry-run`, pushing contacts to production Mautic. The run crashed (Decimal bug) so nothing actually sent, but this was pure luck.
+**Rule: "test locally" means `--dry-run`. NEVER push to production Mautic without explicit "send" / "fire" / "launch" from the user.**
+
+**Fuckup 2: Draft emails still log sends in email_stats**
+Mautic's `campaigns:trigger` "executes" events even when emails are drafts. It doesn't send the email, but it DOES create a row in `email_stats` and marks the event as processed. When emails are later published and events re-triggered, users get the email again — resulting in duplicates.
+**Rule: NEVER run `campaigns:trigger` while emails are in draft mode. Publish emails FIRST, then trigger. And always check `email_stats` for phantom sends before triggering.**
+
+**Fuckup 3: Stale contacts from crashed pipeline runs**
+Previous pipeline runs that crashed (Decimal bug, invalid select options) partially synced contacts to Mautic. Their `sequence_assigned` fields were set but they never entered campaigns. When campaigns were finally fixed, all 60 contacts (not just the intended 10) entered at once.
+**Rule: After ANY failed pipeline run, check Mautic for orphaned contacts with `sequence_assigned` set. Clear them before the next run. Failed runs are NOT clean — they leave state behind.**
+
+**Fuckup 4: Mautic API silently drops campaign-segment linkage**
+`PATCH /api/campaigns/{id}/edit` with `"lists": [segment_id]` silently drops the segment link. The API returns 200 but the campaign has no segment. The fix: pass `"lists": [{"id": N, "name": "..."}]` (objects, not bare IDs). Even then, it only works via PATCH after creation, not in the initial POST.
+**Rule: After ANY Mautic campaign API call, verify the segment linkage by reading the campaign back. Don't trust the API response.**
+
+**Fuckup 5: Deleting segments breaks campaigns**
+Deleting Mautic segments via API while campaigns reference them silently orphans the campaigns. The campaigns lose their contact source and never fire. Recreating segments gives new IDs that don't automatically reconnect.
+**Rule: NEVER delete Mautic segments. Update their filters instead. If you must delete, note every campaign that references them and re-link after recreation.**
+
+**Fuckup 6: `cache:clear` as root breaks Mautic**
+Running `php bin/console cache:clear` via SSH (as root) creates cache files owned by root. Nginx (running as `nginx` user) can't read them, causing 500 errors on the API. Fix: `chown -R nginx:nginx /var/www/mark.seedr.cc/var/cache/` after every cache clear.
+**Rule: Always `chown -R nginx:nginx` the cache dir after running any Mautic console command via SSH.**
+
+**Fuckup 7: Wiped sequence_assigned select options when adding predunning**
+Adding a new option to a select field via API replaced ALL existing options instead of appending. All sequence values became invalid, causing 400 errors on contact sync.
+**Rule: When modifying Mautic select field options via API, always GET the current options first, append the new one, then PUT the full list back.**
+
+**Overall prevention**: Mautic's API is unreliable for campaign management. Always verify state after every API call. Use the DB directly for reads (`mysql -u mautic -pmautic mautic`). Treat every Mautic operation as potentially state-corrupting and verify independently.
+
+---
+
+### 2026-04-21 — Bulk-sent 1333 emails at ~3/sec without stating rate, tanked deliverability
+**What happened**: Ran a paddle-migration pilot blast with `time.sleep(0.3)` between API sends. ~3 emails/sec sustained. Mautic + SES handled it, but Gmail's inbound rate-limiter flagged it as suspicious bulk — emails landed in Promotions/Spam rather than Primary. Combined with cold path (first ever mass send from seedr.cc) = open rate lower than it should have been. Worse: I never even stated the rate before firing. User had to ask + check the script to discover what had happened.
+**Root cause**: Treated "API succeeds" as "delivery is fine". Didn't state send parameters (rate, batch size, ramp strategy) before user consented. Gmail-side ratelimit and reputation warmup got zero thought.
+**Prevention rule**: **NEVER fire a bulk send without stating the parameters out loud FIRST.** For every blast >100 recipients, print:
+- Total target count
+- Sends per second / per minute
+- Total estimated duration
+- From-domain reputation (is this a cold path? new template?)
+- Any warmup ramp plan
+
+User must explicitly confirm. Defaults that are actually safe:
+- **Domain not warmed / cold subject line**: ≤ 100/hr day 1, ≤ 500/hr day 2, ramp to 1000/hr week 1, up from there
+- **Warmed domain, transactional-looking subject**: 1-2/sec (60-120/min)
+- **NEVER 3+/sec unless SES + Gmail have been warmed with this sender+template style already**
+
+---
+
+### 2026-04-20/21 — Claimed click tracking worked based on URL shape, actually tracked nothing
+**What happened**: Paddle pilot blasted 1333 emails. CTA used multi-line `<a>` tag + `{contactfield=X}` tokens inside the URL. Mautic's URL-wrap regex silently skipped the CTA → no `/r/HASH` in delivered body → zero clicks recorded in `page_hits`. I spent hours claiming tracking worked because (a) SES awstrack.me wrap was present, (b) Matomo showed some numbers, (c) API responses said success. Actual first-click capture rate on real users: effectively 0.
+**Root cause**: Never verified end-to-end. Trusted URL structure and API responses instead of querying `page_hits` after a real click from a real recipient.
+**Prevention rule**: See `emails.md` section "Click tracking — source of truth" and "Before bulk-send (pre-flight)". Key: `page_hits` is the ONLY reliable click counter. SES awstrack.me events are mostly Gmail Safe Browsing bots (172.253.x.x, 66.249.x.x IP ranges). Matomo is blocked by ~25-50% of real user browsers (Brave, uBlock, Firefox ETP). **Always fire a test send, click from a clean browser, `SELECT COUNT(*) FROM page_hits WHERE lead_id=<test> AND email_id=<id> AND date_hit>=NOW()-INTERVAL 1 MINUTE` before believing any tracking claim.**
+
+---
+
+### 2026-04-20 — Mautic email_stats table 74GB, indexes corrupted mid-blast
+**What happened**: 1333-row bulk blast hammered email_stats. 14 secondary indexes became corrupt (InnoDB). Mautic UI went down (500s on every page reading the table). Open tracking silently failed for ~90 min.
+**Root cause**: Table had grown unchecked for years (no cleanup cron). Under concurrent INSERT+UPDATE load, latent fragility blew up.
+**Prevention rule**: See `emails.md` section "Bulk blast — DB health". Before any blast of >500 recipients:
+1. `ls -lah /var/lib/mysql/mautic/email_stats.ibd` — if >50GB, rebuild first
+2. `CHECK TABLE email_stats` — if warnings, rebuild before sending
+3. Schedule `mautic:emails:stats:cleanup` monthly via cron
+
+Rebuild is ZERO-downtime with `ALGORITHM=INPLACE, LOCK=NONE` (see `emails.md` for exact SQL).
