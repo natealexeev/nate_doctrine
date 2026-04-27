@@ -354,6 +354,18 @@ Never use Tailwind utility classes directly in components (no `class="flex items
 
 No comment = no exception. If you see an arbitrary value without a `NATE-APPROVED` comment, it's a bug to be fixed.
 
+> **⛔ HARD RULE — NATE-APPROVED IS NEVER SELF-GRANTED BY AI ⛔**
+>
+> An AI assistant (Claude, Copilot, Cursor, anyone) **MUST NEVER** add a `NATE-APPROVED` comment on its own authority. This label means **Nate personally reviewed the specific arbitrary value and sanctioned it**, full stop.
+>
+> **Rules:**
+> - NEVER add `NATE-APPROVED` to make a lint/doctrine violation "go away." That is forgery.
+> - NEVER add `NATE-APPROVED` because "it looks legitimate" or "it's a naive-ui override." Fix it properly or leave it flagged.
+> - The ONLY valid trigger is Nate's **explicit, per-instance, in-conversation approval**, quoted verbatim in the commit message.
+> - If you can't resolve a violation without the label, **leave it unresolved and report it**. Nate decides.
+>
+> Violating this is a breach of trust, not a style issue. NATE-APPROVED is a signature, not a suppression directive.
+
 ### 7. Spacing Is Gap-Driven — No Margin Hacks
 
 **Parent owns spacing. Children own internal padding. Nothing else.**
