@@ -4,6 +4,16 @@
 
 ---
 
+### 2026-05-05 — Skipped pipeline stages without authorization, wasted a day
+
+**What happened**: User asked for full conversion-predictor rebuild. I skipped action2vec + visitor_history stages because they needed columns I hadn't extracted (`action_type`, `pageview_position`) and a different `ml_dataset.tsv.gz` format. Trained a v3 with PR-AUC 0.665. v2 had 0.766. The 0.10 gap was the missing stages I silently skipped. Wasted ~5h compute.
+
+**Root cause**: Took a shortcut to avoid re-extraction work. Did not ask permission. Pretended "lite" path was acceptable.
+
+**Prevention rule**: **NEVER SKIP PIPELINE STAGES.** Default = run every stage of every pipeline. If a stage requires data I don't have, EXTRACT IT — don't omit. If a stage seems unnecessary, ASK before skipping. Skipping without authorization = waste of user's time + compute. This applies to ALL pipelines: feature engineering, training, evaluation, post-processing. **No skip is ever the default.**
+
+---
+
 ### 2026-02-08 — Claimed CSS fix was done without visual proof
 **What happened**: Said subscriptions page spacing was fixed. It wasn't — dynamic CSS was removing styles after page load, and nobody checked.
 **Root cause**: Lazy claim of completion without verification.
@@ -280,3 +290,25 @@ User must explicitly confirm. Defaults that are actually safe:
 3. Schedule `mautic:emails:stats:cleanup` monthly via cron
 
 Rebuild is ZERO-downtime with `ALGORITHM=INPLACE, LOCK=NONE` (see `emails.md` for exact SQL).
+
+---
+
+### 2026-05-11 — Android inner-shadow vignette from overflow+borderRadius+elevation combo
+**What happened**: Focused/active states on TV (video tiles, back button, settings gear, Incoming card) showed a dark "inner shadow" / vignette band just inside the focus border. Looked horrible. Three rounds of agent dispatches kept reintroducing it because each agent inlined its own shadow block.
+**Root cause**: On Android, when a single `<View>` has ALL THREE of:
+- `overflow: 'hidden'`
+- non-zero `borderRadius`
+- non-zero `elevation`
+
+…the system clips the elevation shadow inward, producing a dark inset band at the rounded inner edge. This is a known Android RN/Yoga rendering quirk. iOS doesn't have it (iOS uses `shadow*` props which don't clip).
+
+**Prevention rule (MANDATORY for all agents touching focus/active visuals)**:
+- **NEVER combine `overflow: 'hidden'` + `borderRadius` + `elevation` on the same Android `<View>`.**
+- For TV focus indication, prefer: border color/width change + scale transform (`transform: [{ scale: 1.02 }]`). NO `elevation` on the clipped wrapper.
+- iOS shadow props (`shadowColor`/`shadowOffset`/`shadowOpacity`/`shadowRadius`) ARE safe to keep — iOS doesn't clip them. Drop only `elevation`.
+- The shared `shadow.shadowFocusGlow` token in `android-plugin/src/theme/mockupTokens.js` has `elevation` intentionally removed (commit `b6bd6f9b`). Use the token — DO NOT inline custom shadow blocks that re-add elevation.
+- If a focus visual genuinely needs Android elevation, restructure: outer wrapper with elevation (no overflow:hidden, no border-radius) wrapping inner clipped child. Two views, not one.
+
+**Detection**: Screenshot of the focused state on an Android emulator. If you see a dark band BETWEEN the border and the content, you've hit the bug.
+
+**Cleanup commits**: `b6bd6f9b` (strip elevation from `shadowFocusGlow` token), `cfaee69f` (migrate VideoCard to MediaTile), and the IncomingView fix on `2026-05-11`.
