@@ -277,6 +277,44 @@ Everything else? Flex + gap.
 
 ---
 
+**GAP IS THE *ONLY* INTER-ELEMENT SPACING. PADDING IS NOT A SECOND CHANNEL.**
+
+Banning margins is half the rule. The other half: in a flex/grid column, `gap`
+is the **sole** source of spacing between siblings. Padding does NOT get to also
+add vertical space between elements. The instant a child carries its own
+`padding-top`/`padding-bottom` *and* the parent has a `gap`, the two STACK into a
+compound gap — `gap + padding-a + padding-b` — and the rhythm is silently wrong.
+That is the opposite of clean, even though no margin was used.
+
+```css
+/* VERBOTEN — gap AND paddings, stacking into a compound, uneven rhythm */
+.column { display: flex; flex-direction: column; gap: var(--spacing-md); }
+.toolbar { padding: var(--spacing-sm) 0 var(--spacing-md); } /* +8/+16 on top of the 16 gap */
+.list    { padding-top: var(--spacing-md); }                  /* +16 again → 32px seam */
+
+/* GUT — one gap owns ALL inter-sibling spacing; padding only on the frame */
+.column { display: flex; flex-direction: column; gap: var(--spacing-md); }
+.toolbar { padding-block: 0; }  /* no vertical padding — the gap spaces it */
+.list    { padding-top: 0; }    /* no top padding — the gap spaces it */
+```
+
+**The rule:** padding is allowed ONLY on the outer **frame** edges of a scroll/
+page container (its top edge before the first child, its bottom edge after the
+last, and horizontal sides) and as a component's **internal** padding (inside a
+card/button, between its border and its own content). Padding is NEVER used to
+space one sibling from the next — that is always `gap`.
+
+When a layout is split across two containers (e.g. a sticky/collapsing header
+above a separate scrolling body), the seam between them is unavoidable padding —
+make it **exactly one** `gap`-sized padding on ONE side, never both. One source,
+one gap value. If you catch yourself adding a second padding "to make it look
+right," you have a compound-gap bug — delete paddings until only the gap remains.
+
+Audit reflex: if removing a `gap` *and* a `padding` both change the space between
+two siblings, the padding is illegal — it was a second spacing channel. Kill it.
+
+---
+
 **THEME ARCHITECTURE:**
 
 The design system MUST support light and dark themes with instant switching. Structure:
