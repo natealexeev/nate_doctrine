@@ -17,6 +17,8 @@
 | backend.md | *(coming soon)* |
 | refactoring.md | *(coming soon)* |
 
+**Before any expensive ML/compute launch:** read `lessons.md` and apply the launch contract checklist from `2026-06-25 — Launched AG LTV baseline without stating architecture out loud`. State data, labels, included/omitted stages, targets, parallelism, resource risk, ETA, and output/log paths before starting jobs.
+
 ## Procedures
 
 | Procedure | Purpose |
