@@ -312,3 +312,23 @@ Rebuild is ZERO-downtime with `ALGORITHM=INPLACE, LOCK=NONE` (see `emails.md` fo
 **Detection**: Screenshot of the focused state on an Android emulator. If you see a dark band BETWEEN the border and the content, you've hit the bug.
 
 **Cleanup commits**: `b6bd6f9b` (strip elevation from `shadowFocusGlow` token), `cfaee69f` (migrate VideoCard to MediaTile), and the IncomingView fix on `2026-05-11`.
+
+---
+
+### 2026-06-25 — Launched AG LTV baseline without stating architecture out loud
+
+**What happened**: User asked to train an LTV predictor based on churn features and drive the server hard. I launched four AutoGluon regression jobs for 30/60/90/180-day forward revenue labels using the v18 churn feature table. I did not clearly state before launch that this was a first-pass main-feature baseline, not the full churn v20 architecture. It omitted CH side models, event/LSTM sidecars, late-merge/blender, and side applicability models. User had to ask after launch whether it used the same side models as churn.
+
+**Root cause**: Treated "train it" as permission to choose a pragmatic baseline silently. I reported that jobs were launched, but failed to disclose the exact architecture, omissions, horizon choices, parallelism plan, resource plan, and expected runtime before spending compute.
+
+**Prevention rule**: **Before launching any expensive ML/compute job, state the launch contract out loud FIRST.** For every train/run that consumes hours, GPU, large RAM, or parallel workers, print:
+- Data source and label definition
+- Exact model architecture / pipeline stages included
+- Exact pipeline stages intentionally omitted
+- Targets/horizons being trained and why
+- Parallelism plan (folds, processes, GPUs, CPU workers)
+- Expected resource pressure and OOM risk
+- Expected runtime / hard cap
+- Output directory and log paths
+
+If the run is a baseline instead of parity with an existing production/research pipeline, say **BASELINE, NOT FULL PIPELINE** explicitly before launch. Do not let "first try" be implicit. User can approve shortcuts; agent cannot hide them inside implementation details.
