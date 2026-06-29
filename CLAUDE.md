@@ -116,4 +116,21 @@ A review that only checks the plan but ignores doctrine violations is incomplete
 
 ---
 
+## Merge & Integration Policy
+
+**NEVER merge by direct push, local fast-forward, or silent cherry-pick into a shared branch. EVERY merge goes through a Pull Request, reviewed TWICE before it lands.**
+
+For any branch destined for an integration branch or `main` (feature lanes, fix branches, agent/worktree branches):
+
+1. **Open a PR.** No exceptions — not for "small" changes, not for "obviously safe" ones.
+2. **Review the diff yourself** — read the full changeset against this doctrine and the relevant plan.
+3. **Review the diff with codex** — run an independent `codex exec` pass. Resolve every BLOCKER before merge.
+4. **Merge only after BOTH reviews pass**, then verify the merge added *exactly* the reviewed diff (`git diff --stat` before/after) — nothing else.
+
+Why both reviewers: codex has repeatedly caught real bugs a first pass missed (concurrency cancel-gaps, sign-overflow, follower-cancellation). One reviewer is a blind spot. The PR + post-merge diff check is what prevents silent clobbering (a merge dragging in unintended files).
+
+Note: opening a PR requires pushing the branch — that still needs explicit per-task push approval (push is a "this works" declaration, never automatic).
+
+---
+
 *See individual doctrine files for detailed rules and examples.*
